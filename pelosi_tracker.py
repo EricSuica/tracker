@@ -11,7 +11,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 # 加载 .env 配置
-load_dotenv("config.env")
+load_dotenv("/root/tracker/config.env")
 
 # 配置
 EMAIL = os.getenv("EMAIL")
