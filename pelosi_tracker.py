@@ -9,6 +9,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
+from datetime import datetime
+
+# 日志打印函数
+def log(msg):
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
 
 # 加载 .env 配置
 load_dotenv("/root/tracker/config.env")
@@ -29,19 +34,21 @@ HEADERS = {
 
 # 读取上次处理的报告 ID
 def get_last_report_id():
-    if os.path.exists(LAST_REPORT_ID_FILE):
+    if LAST_REPORT_ID_FILE and os.path.exists(LAST_REPORT_ID_FILE):
         with open(LAST_REPORT_ID_FILE, "r") as file:
             return file.read().strip()
     return None
 
 # 保存最新报告 ID
 def save_last_report_id(report_id):
-    with open(LAST_REPORT_ID_FILE, "w") as file:
-        file.write(report_id)
+    if LAST_REPORT_ID_FILE:
+        with open(LAST_REPORT_ID_FILE, "w") as file:
+            file.write(report_id)
+        log(f"已保存最新报告 ID: {report_id}")
 
 # 发送邮件
 def send_email(subject, attachment_content=None, attachment_name="report.pdf"):
-    print(f"正在发送邮件到 {RECIPIENT_EMAIL}...")
+    log(f"正在发送邮件到 {RECIPIENT_EMAIL}...")
     msg = MIMEMultipart()
     msg['From'] = EMAIL
     msg['To'] = ', '.join(RECIPIENT_EMAIL) if isinstance(RECIPIENT_EMAIL, list) else RECIPIENT_EMAIL
@@ -63,11 +70,11 @@ def send_email(subject, attachment_content=None, attachment_name="report.pdf"):
         server.starttls()
         server.login(EMAIL, EMAIL_PASSWORD)
         server.send_message(msg)
-    print("邮件发送成功！")
+    log("邮件发送成功！")
 
 # 查询最新报告
 def search_for_report():
-    print("正在查询符合条件的报告...")
+    log("正在查询符合条件的报告...")
 
     # 初始 GET 请求获取搜索页面
     session = requests.Session()
@@ -87,14 +94,14 @@ def search_for_report():
     # 查找报告表格内容
     table_rows = soup.select("tbody tr")
     if not table_rows:
-        print("未找到报告。")
+        log("未找到报告。")
         return None, None
 
     # 提取最后一个报告链接
     last_row = table_rows[-1]
     link_tag = last_row.find('a', href=True)
     if not link_tag:
-        print("未找到报告链接。")
+        log("未找到报告链接。")
         return None, None
 
     report_url = link_tag['href']
@@ -107,13 +114,13 @@ def search_for_report():
 
 # 下载和发送报告
 def download_and_send_report(report_id, report_url):
-    print(f"正在从 {report_url} 下载报告...")
+    log(f"正在从 {report_url} 下载报告...")
     pdf_response = requests.get(report_url, headers=HEADERS, stream=True)
 
     # 验证文件是否为PDF
     content_type = pdf_response.headers.get("Content-Type", "")
     if "pdf" not in content_type:
-        print(f"下载的文件不是PDF: {content_type}")
+        log(f"下载的文件不是PDF: {content_type}")
         return
 
     attachment_content = pdf_response.content
@@ -125,7 +132,7 @@ def download_and_send_report(report_id, report_url):
         attachment_name=f"{report_id}.pdf"
     )
 
-    print(f"报告 {report_id} 已处理并发送。")
+    log(f"报告 {report_id} 已处理并发送。")
 
 if __name__ == "__main__":
     last_report_id = get_last_report_id()
@@ -135,5 +142,4 @@ if __name__ == "__main__":
         download_and_send_report(report_id, report_url)
         save_last_report_id(report_id)
     else:
-        print("没有找到新的报告或报告未更新。")
-#测试
+        log("没有找到新的报告或报告未更新。")
