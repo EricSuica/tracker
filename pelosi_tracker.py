@@ -16,7 +16,7 @@ def log(msg):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
 
 # 加载 .env 配置
-load_dotenv("/root/tracker/config.env")
+load_dotenv("/root/tracker/config.env", override=True)
 
 # 配置
 EMAIL = os.getenv("EMAIL")
