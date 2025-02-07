@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
+time.sleep(random.uniform(1, 30))  # 等待随机秒数
 
 # 日志打印函数
 def log(msg):
