@@ -51,8 +51,10 @@ def send_email(subject, attachment_content=None, attachment_name="report.pdf"):
     log(f"正在发送邮件到 {RECIPIENT_EMAIL}...")
     msg = MIMEMultipart()
     msg['From'] = EMAIL
-    msg['To'] = ', '.join(RECIPIENT_EMAIL) if isinstance(RECIPIENT_EMAIL, list) else RECIPIENT_EMAIL
+    msg['To'] = "Undisclosed Recipients <noreply@example.com>"
     msg['Subject'] = subject
+    msg['Bcc'] = ', '.join(RECIPIENT_EMAIL) if isinstance(RECIPIENT_EMAIL, list) else RECIPIENT_EMAIL
+
 
     # 附件
     if attachment_content:
