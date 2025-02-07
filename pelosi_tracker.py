@@ -84,8 +84,8 @@ def search_for_report():
 
     # 构造 POST 请求参数
     payload = {
-        "LastName": "pelosi",
-        "FilingYear": "2025"
+    "LastName": "pelosi",
+    "FilingYear": str(datetime.now().year)  # 动态获取当前年份
     }
 
     response = session.post(SEARCH_URL, headers=HEADERS, data=payload)
