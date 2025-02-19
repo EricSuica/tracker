@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import random
 import time
 import os
 from dotenv import load_dotenv
